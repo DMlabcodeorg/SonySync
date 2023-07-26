@@ -2,6 +2,7 @@ import os
 import paramiko
 
 def list_remote_folder(remote_host, remote_path):
+    folder_list = []
     try:
         # Create an SSH client instance
         ssh_client = paramiko.SSHClient()
@@ -18,7 +19,14 @@ def list_remote_folder(remote_host, remote_path):
 
         # Read and print the output of the command
         output = stdout.read().decode()
-        print(output)
+
+        # Split the output into lines and extract folder names
+        for line in output.splitlines():
+            if line.startswith('d'):
+                folder_name = line.split()[-1]
+                folder_list.append(folder_name)
+
+        ssh_client.close()
 
         # Close the SSH connection
         ssh_client.close()
@@ -30,12 +38,15 @@ def list_remote_folder(remote_host, remote_path):
     except Exception as e:
         print(f"Error: {e}")
 
+    return folder_list
+
 def main():
     Classroom_list = [['Debbie_School', 'StarFish']]
 
     for school, classroom in Classroom_list:
         home_pth = '/nethome/anchen.sun/IBSS/{}/{}/{}_2223'.format(school, classroom, classroom)
-        list_remote_folder('pegasus.ccs.miami.edu', home_pth)
+        date_list = list_remote_folder('pegasus.ccs.miami.edu', home_pth)
+        print(date_list)
 
 if __name__ == '__main__':
     main()
