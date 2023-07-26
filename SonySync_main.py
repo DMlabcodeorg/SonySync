@@ -9,13 +9,8 @@ def list_remote_folder(remote_host, remote_path):
         # Automatically add the server's host key (this is insecure and should be done with caution)
         ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 
-        # Load your private key (SSH key pair) for passwordless authentication
-        # Replace 'path/to/your/private_key' with the actual path to your private key
-        private_key_path = 'path/to/your/private_key'
-        private_key = paramiko.RSAKey.from_private_key_file(private_key_path)
-
         # Connect to the remote server using the private key for authentication
-        ssh_client.connect(hostname=remote_host, username='your_username', pkey=private_key)
+        ssh_client.connect(hostname=remote_host, username='anchen.sun')
 
         # Execute the command to list the contents of the remote folder
         command = f"ls -l {remote_path}"
@@ -40,7 +35,7 @@ def main():
 
     for school, classroom in Classroom_list:
         home_pth = '/nethome/anchen.sun/IBSS/{}/{}/{}_2223'.format(school, classroom, classroom)
-        list_remote_folder('anchen.sun@pegasus.ccs.miami.edu', home_pth)
+        list_remote_folder('pegasus.ccs.miami.edu', home_pth)
 
 if __name__ == '__main__':
     main()
