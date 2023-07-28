@@ -46,7 +46,42 @@ def main():
     for school, classroom in Classroom_list:
         home_pth = '/nethome/anchen.sun/IBSS/{}/{}/{}_2223'.format(school, classroom, classroom)
         date_list = list_remote_folder('pegasus.ccs.miami.edu', home_pth)
-        print(date_list)
+        for date in date_list:
+            date_pth = '{}/{}'.format(home_pth, date)
+            data_folder = list_remote_folder('pegasus.ccs.miami.edu', date_pth)
+            subfolder_flag = 0
+            if 'Spencer_Data' in data_folder:
+                data_folder_name = 'Spencer_Data'
+                subfolder_flag = 1
+            elif 'SPENCER_DATA' in data_folder:
+                data_folder_name = 'SPENCER_DATA'
+                subfolder_flag = 1
+            elif 'SONY_Data' in data_folder:
+                data_folder_name = 'SONY_Data'
+            elif 'LENA_Data' in data_folder:
+                data_folder_name = 'LENA_Data'
+            else:
+                print('Error: Not able to detect Data in {}'.format(date_pth))
+                break
+
+            audio_pth = '{}/{}'.format(date_pth, data_folder_name)
+            if subfolder_flag == 1:
+                folder_get = list_remote_folder('pegasus.ccs.miami.edu', audio_pth)
+                if len(folder_get) == 1:
+                    audio_pth = '{}/{}'.format(audio_pth, folder_get[0])
+                    folder_get = list_remote_folder('pegasus.ccs.miami.edu', audio_pth)
+                    if 'Audio' in folder_get:
+                        audio_pth = '{}/Audio'.format(audio_pth)
+                    else:
+                        print('Error: Not able to detect audio path in {}'.format(audio_pth))
+                        break
+                else:
+                    print('Error: Not able to detect audio path in {}'.format(audio_pth))
+                    break
+
+            audio_files = list_remote_folder('pegasus.ccs.miami.edu', audio_pth)
+            print(audio_files)
+
 
 if __name__ == '__main__':
     main()
