@@ -80,7 +80,7 @@ def main():
                     break
 
             audio_files = list_remote_folder('pegasus.ccs.miami.edu', audio_pth)
-            print(audio_files)
+            print(audio_pth, audio_files)
 
 
 if __name__ == '__main__':
