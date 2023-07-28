@@ -36,7 +36,8 @@ class AudioFlagFinder:
             try:
                 beep_df = pd.read_csv(self.output_directory + '.csv', header=0, index_col=0)
                 curr_saved_flags = beep_df[['file_name']].values
-                self.file_str_array = [n for n in self.file_str_array if n not in curr_saved_flags]
+                self.file_str_array = [n for n in self.file_str_array if n not in curr_saved_flags
+                                       and n.split('.')[-1] == 'wav']
             except:
                 pass
                 
