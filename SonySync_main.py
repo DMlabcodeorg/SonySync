@@ -78,9 +78,10 @@ def main():
                 else:
                     print('Error: Not able to detect audio path in {}'.format(audio_pth))
                     break
-
-            audio_files = list_remote_folder('pegasus.ccs.miami.edu', audio_pth)
-            print(audio_pth, audio_files)
+            date_file_dic = '{}_{}'.format(classroom, date)
+            command = 'scp -r anchen.sun@pegasus.ccs.miami.edu:{} {}'.format(audio_pth, date_file_dic)
+            os.system(command)
+            break
 
 
 if __name__ == '__main__':
