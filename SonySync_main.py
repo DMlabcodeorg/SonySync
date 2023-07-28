@@ -81,7 +81,9 @@ def main():
             date_file_dic = '{}_{}'.format(classroom, date)
             command = 'scp -r anchen.sun@pegasus.ccs.miami.edu:{} {}'.format(audio_pth, date_file_dic)
             os.system(command)
-            break
+            command = 'python test_flag_class.py --input_path {} --output_path {}'.format(date_file_dic, date_file_dic)
+            os.system(command)
+            print('Successfully generate {}'.format(date_file_dic))
 
 
 if __name__ == '__main__':
