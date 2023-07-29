@@ -70,13 +70,18 @@ def main():
                     if subfolder_flag == 1:
                         folder_get = list_remote_folder('pegasus.ccs.miami.edu', audio_pth)
                         if len(folder_get) == 1:
-                            audio_pth = '{}/{}'.format(audio_pth, folder_get[0])
-                            folder_get = list_remote_folder('pegasus.ccs.miami.edu', audio_pth)
                             if 'Audio' in folder_get:
                                 audio_pth = '{}/Audio'.format(audio_pth)
+                            elif 'AUDIO' in folder_get:
+                                audio_pth = '{}/AUDIO'.format(audio_pth)
                             else:
-                                print('Error: Not able to detect audio path in {}'.format(audio_pth))
-                                break
+                                audio_pth = '{}/{}'.format(audio_pth, folder_get[0])
+                                folder_get = list_remote_folder('pegasus.ccs.miami.edu', audio_pth)
+                                if 'Audio' in folder_get:
+                                    audio_pth = '{}/Audio'.format(audio_pth)
+                                else:
+                                    print('Error: Not able to detect audio path in {}'.format(audio_pth))
+                                    break
                         elif 'SONY_Data' in folder_get:
                             audio_pth = '{}/SONY_Data'.format(audio_pth)
                         else:
