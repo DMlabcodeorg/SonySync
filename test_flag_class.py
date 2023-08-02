@@ -38,7 +38,7 @@ def main():
         # min_flag_candidate_req (float, default = 0.3):    time measured in seconds to be considered a valid beep canidate
         # time_cut               (integer, default = None): to analyze only the first n seconds of each audio
 
-    audio_obj.find_flag(flag_freq=opt_get.flag_freq, offset=10, max_gap_time=0.035, min_flag_candidate_req=0.3, time_cut=3600)
+    audio_obj.find_flag(flag_freq=opt_get.flag_freq, offset=10, max_gap_time=0.035, min_flag_candidate_req=0.3, time_cut=opt_get.time_cut)
 
 
     # OTHER NOTES:

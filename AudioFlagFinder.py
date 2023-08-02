@@ -79,8 +79,8 @@ class AudioFlagFinder:
                 for t in range(len(self.time_stamps)):
                     freq = int(self.get_freq(freqs, magnitudes, t))
                     pitches.append(freq)
-                    #if freq > 2000:
-                    #    print(self.time_stamps[t]/self.quotient, freq)
+                    if freq > flag_freq - offset:
+                        print(self.time_stamps[t]/self.quotient, freq)
 
                     # Range of frequencies that we are searching for
                     if freq > flag_freq - offset and freq < flag_freq + offset:
