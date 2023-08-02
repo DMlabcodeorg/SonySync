@@ -66,7 +66,7 @@ class AudioFlagFinder:
 
                 # Computes the frequencies and magnitudes
                 freqs, magnitudes = librosa.core.piptrack(y=samples, sr=sample_rate, S=None, n_fft=self.n_fft, hop_length=None, fmin=150.0,
-                                                        fmax=11000.0, threshold=0.1, win_length=None, window='hann', center=True, pad_mode='reflect', ref=None)
+                                                        fmax=20000.0, threshold=0.1, win_length=None, window='hann', center=True, pad_mode='reflect', ref=None)
 
                 # Stores the frequencies (indices of pitches match time_stamps)
                 pitches = []
