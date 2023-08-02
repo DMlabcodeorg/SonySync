@@ -9,6 +9,8 @@ def parse_option():
                         help='Name of directories you want to input audios from together (you can have as many as you want)')
     parser.add_argument('--output_path', type=str, default='output',
                         help='Output directory of the csv file of all audios (no need to type ".csv" at the end')
+    parser.add_argument('--flag_freq', type=int, default=3460,
+                        help='frequency of the flag (beep) you are looking for')
     parser.add_argument('--time_cut', type=int, default=3600,
                         help='to analyze only the first n seconds of each audio')
     opt = parser.parse_args()
