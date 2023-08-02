@@ -84,6 +84,8 @@ def main():
                                     break
                         elif 'SONY_Data' in folder_get:
                             audio_pth = '{}/SONY_Data'.format(audio_pth)
+                        elif 'SONY_data' in folder_get:
+                            audio_pth = '{}/SONY_data'.format(audio_pth)
                         else:
                             print('Error: Not able to detect audio path in {}'.format(audio_pth))
                             break
