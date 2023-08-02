@@ -74,6 +74,10 @@ def main():
                                 audio_pth = '{}/Audio'.format(audio_pth)
                             elif 'AUDIO' in folder_get:
                                 audio_pth = '{}/AUDIO'.format(audio_pth)
+                            elif 'SONY_Data' in folder_get:
+                                audio_pth = '{}/SONY_Data'.format(audio_pth)
+                            elif 'SONY_data' in folder_get:
+                                audio_pth = '{}/SONY_data'.format(audio_pth)
                             else:
                                 audio_pth = '{}/{}'.format(audio_pth, folder_get[0])
                                 folder_get = list_remote_folder('pegasus.ccs.miami.edu', audio_pth)
