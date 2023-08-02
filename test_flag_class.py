@@ -9,7 +9,7 @@ def parse_option():
                         help='Name of directories you want to input audios from together (you can have as many as you want)')
     parser.add_argument('--output_path', type=str, default='output',
                         help='Output directory of the csv file of all audios (no need to type ".csv" at the end')
-    parser.add_argument('--flag_freq', type=int, default=3460,
+    parser.add_argument('--flag_freq', type=int, default=3000,
                         help='frequency of the flag (beep) you are looking for')
     parser.add_argument('--time_cut', type=int, default=3600,
                         help='to analyze only the first n seconds of each audio')
@@ -38,7 +38,7 @@ def main():
         # min_flag_candidate_req (float, default = 0.3):    time measured in seconds to be considered a valid beep canidate
         # time_cut               (integer, default = None): to analyze only the first n seconds of each audio
 
-    audio_obj.find_flag(flag_freq=3000, offset=10, max_gap_time=0.035, min_flag_candidate_req=0.3, time_cut=3600)
+    audio_obj.find_flag(flag_freq=opt_get.flag_freq, offset=10, max_gap_time=0.035, min_flag_candidate_req=0.3, time_cut=3600)
 
 
     # OTHER NOTES:
