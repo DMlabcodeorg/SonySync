@@ -41,7 +41,7 @@ def list_remote_folder(remote_host, remote_path):
     return folder_list
 
 def main():
-    Classroom_list = [['Debbie_School', 'LadyBugs', ['2022', '2023']]]
+    Classroom_list = [['Debbie_School', 'LittleFish', ['2022', '2023']], ['Debbie_School', 'StarFish', ['2022', '2023']]]#, ['Debbie_School', 'LadyBugs', ['2022', '2023']]]
 
     for school, classroom, year_list in Classroom_list:
         home_pth = '/nethome/anchen.sun/IBSS/{}/{}/{}_2223'.format(school, classroom, classroom)
