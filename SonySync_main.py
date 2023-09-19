@@ -98,8 +98,7 @@ def main():
                     os.system(command)
                     month = int(date.split('-')[0])
                     day = int(date.split('-')[1])
-                    year = int(date.split('-')[2])
-                    if (month > 6 and year >= 2023) or (month == 6 and day >= 8 and year == 2023):
+                    if (month > 6 and int(year) >= 2023) or (month == 6 and day >= 8 and int(year) == 2023):
                         flag_freq = 11000
                     else:
                         flag_freq = 3000
