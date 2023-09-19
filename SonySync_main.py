@@ -103,7 +103,7 @@ def main():
                         flag_freq = 11000
                     else:
                         flag_freq = 3000
-                    command = 'python test_flag_class.py --input_path {} --output_path {} --flag_freq'.format(date_file_dic, date_file_dic, flag_freq)
+                    command = 'python test_flag_class.py --input_path {} --output_path {} --flag_freq {}'.format(date_file_dic, date_file_dic, flag_freq)
                     os.system(command)
                     print('Successfully generate {}'.format(date_file_dic))
 
