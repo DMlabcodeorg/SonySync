@@ -96,7 +96,14 @@ def main():
                     date_file_dic = '{}_{}'.format(classroom, date)
                     command = 'scp -r anchen.sun@pegasus.ccs.miami.edu:{} {}'.format(audio_pth, date_file_dic)
                     os.system(command)
-                    command = 'python test_flag_class.py --input_path {} --output_path {}'.format(date_file_dic, date_file_dic)
+                    month = int(date.split('-')[0])
+                    day = int(date.split('-')[1])
+                    year = int(date.split('-')[2])
+                    if (month > 6 and year >= 2023) or (month == 6 and day >= 8 and year == 2023):
+                        flag_freq = 11000
+                    else:
+                        flag_freq = 3000
+                    command = 'python test_flag_class.py --input_path {} --output_path {} --flag_freq'.format(date_file_dic, date_file_dic, flag_freq)
                     os.system(command)
                     print('Successfully generate {}'.format(date_file_dic))
 
