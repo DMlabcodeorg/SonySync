@@ -31,7 +31,7 @@ def integrate_csv_files(files):
 
     for file in files:
         df = pd.read_csv(file)
-        df['filename'] = file
+        df['filename'] = str(file).split('.')[0]
         df_list.append(df)
 
     integrated_df = pd.concat(df_list, ignore_index=True)
