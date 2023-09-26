@@ -141,7 +141,7 @@ def main():
                         print('Successfully generate {}'.format(date_file_dic))
     else:
         for classroom_pth in list_folders_with_string_in_name('./', 'StarFish'):
-            date = classroom_pth.split('_')
+            date = classroom_pth.split('_')[-1]
             month = int(date.split('-')[0])
             day = int(date.split('-')[1])
             year = date.split('-')[2]
