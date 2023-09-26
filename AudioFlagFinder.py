@@ -32,8 +32,6 @@ class AudioFlagFinder:
             # path_to_folder = os.path.dirname(os.path.realpath(sys.argv[0])).replace("\\","/")
 
             self.file_str_array = os.listdir(folder_dir)
-
-            print(self.file_str_array)
             
             try:
                 beep_df = pd.read_csv(self.output_directory + '.csv', header=0, index_col=0)
@@ -45,7 +43,7 @@ class AudioFlagFinder:
                 
             print('List of audios found in: \n\t' + folder_dir +'\n audios ---> ', self.file_str_array)
 
-            print('\nWe test with flag frequency {} and time cut {}\n'.format(flag_freq, time_cut))
+            print('\nWe test with flag frequency {} Hz and time cut {} seconds\n'.format(flag_freq, time_cut))
 
             for file_name in self.file_str_array:
                 print('\n\nCurrently on: ', file_name)
