@@ -24,6 +24,7 @@ class AudioFlagFinder:
         
         if type(self.input_path_list) != type([]):
             print('\n\nThe input_path_list parameter must be a list of input directories...\n')
+            print('\nWe test with flag frequency {} and time cut {}\n'.format(flag_freq, time_cut))
             exit()
         
         for folder_dir in self.input_path_list:
