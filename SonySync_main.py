@@ -5,8 +5,8 @@ import argparse
 def parse_option():
     parser = argparse.ArgumentParser('argument for run sonysync script')
 
-    parser.add_argument('--download_flag', type=bool, default=True,
-                        help='Whether need to transfer data from Pegasus.')
+    parser.add_argument('--download_flag', type=int, default=1,
+                        help='Whether need to transfer data from Pegasus. 1 is True, 0 is False')
     opt = parser.parse_args()
     return opt
 
@@ -73,7 +73,7 @@ def list_remote_folder(remote_host, remote_path):
 def main():
     opt_get = parse_option()
 
-    if opt_get.download_flag:
+    if opt_get.download_flag == 1:
 
         Classroom_list = [['Debbie_School', 'StarFish', ['2022', '2023']]]#, ['Debbie_School', 'LittleFish', ['2022', '2023']]]#, ['Debbie_School', 'LadyBugs', ['2022', '2023']]]
 
