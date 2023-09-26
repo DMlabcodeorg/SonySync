@@ -149,9 +149,8 @@ def main():
                 flag_freq = 11000
             else:
                 flag_freq = 3000
-            command = 'python test_flag_class.py --input_path {} --output_path {} --flag_freq {}'.format(classroom_pth,
-                                                                                                         classroom_pth,
-                                                                                                         flag_freq)
+            command = 'python test_flag_class.py --input_path {} --output_path {} --flag_freq {} --time_cut 10800'.format(
+                classroom_pth, classroom_pth, flag_freq)
             os.system(command)
             print('Successfully generate {}'.format(classroom_pth))
 
