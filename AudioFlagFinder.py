@@ -112,6 +112,60 @@ class AudioFlagFinder:
                                 candidate = []
 
                         round += 1
+                else:
+                    print('\nProcess the whole audio')
+
+                    samples = samples_all
+
+                    # Window size of fft measurement
+                    self.quotient = float(2048 / self.n_fft)
+
+                    # Compute the Short-Time Fourier Transform (STFT)
+                    stft = librosa.stft(samples, n_fft=self.n_fft)
+
+                    # Convert the STFT time stamps
+                    self.time_stamps = librosa.core.frames_to_time(range(stft.shape[1]), sr=sample_rate)
+                    # time_stamps = time_stamps
+
+                    # Computes the frequencies and magnitudes
+                    freqs, magnitudes = librosa.core.piptrack(y=samples, sr=sample_rate, S=None, n_fft=self.n_fft,
+                                                              hop_length=None, fmin=150.0,
+                                                              fmax=20000.0, threshold=0.1, win_length=None,
+                                                              window='hann', center=True, pad_mode='reflect', ref=None)
+
+                    # Stores the frequencies (indices of pitches match time_stamps)
+                    pitches = []
+
+                    # Stores all the beep candidates
+                    slice_t = []
+                    candidate = []
+                    prev_t = 0
+                    print('looking for candidates...')
+                    for t in range(len(self.time_stamps)):
+                        freq = int(self.get_freq(freqs, magnitudes, t))
+                        pitches.append(freq)
+                        # if freq > flag_freq - offset: #and freq < flag_freq + offset:
+                        #    print(self.time_stamps[t]/self.quotient, freq)
+
+                        # Range of frequencies that we are searching for
+                        if freq > flag_freq - offset and freq < flag_freq + offset:
+                            # print(self.time_stamps[t]   , t)
+
+                            # To make sure the timestamps are continues
+                            if self.time_stamps[t] - self.time_stamps[prev_t] <= max_gap_time * self.quotient:
+                                candidate.append(t)
+                            else:
+                                if len(candidate) and self.time_stamps[candidate[-1]] - self.time_stamps[
+                                    candidate[0]] > min_flag_candidate_req * self.quotient:
+                                    slice_t.append(candidate)
+                                candidate = []
+                            prev_t = t
+
+                        if self.time_stamps[t] - self.time_stamps[prev_t] > max_gap_time * self.quotient and len(
+                                candidate) and self.time_stamps[candidate[-1]] - self.time_stamps[
+                            candidate[0]] > min_flag_candidate_req * self.quotient:
+                            slice_t.append(candidate)
+                            candidate = []
 
                 # If there is no flag tone in the audio 
                 if slice_t == []:
