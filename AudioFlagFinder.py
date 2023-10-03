@@ -46,63 +46,72 @@ class AudioFlagFinder:
             print('\nWe test with flag frequency {} Hz and time cut {} seconds\n'.format(flag_freq, time_cut))
 
             for file_name in self.file_str_array:
-                print('\n\nCurrently on: ', file_name)
+                print('\n\nCurrently on: {}'.format(file_name))
 
                 # Load the WAV file         
                 audio_path = folder_dir + '/' + file_name
+
+                # Stores the smallest mean difference (most likely candidate)
+                curr_mean_diff = 10000
                 
                 # samples raw data, and rate is the number of time the points are measured
                 samples, sample_rate = librosa.load(audio_path, sr=None)
+
                 if time_cut:
-                    samples = self.cut_audio_by_time(samples, sample_rate, 0, time_cut)            
+                    slice_t = []
+                    round = 0
+                    while slice_t == [] and (round + 1) * time_cut * sample_rate < len(samples) :
+
+                        print('\nProcess minutes {} to {}'.format(round * time_cut, (round + 1) * time_cut))
+
+                        samples = self.cut_audio_by_time(samples, sample_rate, round * time_cut, (round + 1) * time_cut)
                 
-                # Window size of fft measurement
-                self.quotient = float(2048/self.n_fft)
+                        # Window size of fft measurement
+                        self.quotient = float(2048/self.n_fft)
 
-                # Compute the Short-Time Fourier Transform (STFT)
-                stft = librosa.stft(samples, n_fft=self.n_fft)
-                
-                # Convert the STFT time stamps
-                self.time_stamps = librosa.core.frames_to_time(range(stft.shape[1]), sr=sample_rate)
-                # time_stamps = time_stamps
+                        # Compute the Short-Time Fourier Transform (STFT)
+                        stft = librosa.stft(samples, n_fft=self.n_fft)
 
-                # Computes the frequencies and magnitudes
-                freqs, magnitudes = librosa.core.piptrack(y=samples, sr=sample_rate, S=None, n_fft=self.n_fft, hop_length=None, fmin=150.0,
-                                                        fmax=20000.0, threshold=0.1, win_length=None, window='hann', center=True, pad_mode='reflect', ref=None)
+                        # Convert the STFT time stamps
+                        self.time_stamps = librosa.core.frames_to_time(range(stft.shape[1]), sr=sample_rate)
+                        # time_stamps = time_stamps
 
-                # Stores the frequencies (indices of pitches match time_stamps)
-                pitches = []
+                        # Computes the frequencies and magnitudes
+                        freqs, magnitudes = librosa.core.piptrack(y=samples, sr=sample_rate, S=None, n_fft=self.n_fft, hop_length=None, fmin=150.0,
+                                                                fmax=20000.0, threshold=0.1, win_length=None, window='hann', center=True, pad_mode='reflect', ref=None)
 
-                # Stores all the beep candidates
-                slice_t = []
-                candidate = []
-                prev_t = 0
-                print('looking for candidates...')
-                for t in range(len(self.time_stamps)):
-                    freq = int(self.get_freq(freqs, magnitudes, t))
-                    pitches.append(freq)
-                    #if freq > flag_freq - offset: #and freq < flag_freq + offset:
-                    #    print(self.time_stamps[t]/self.quotient, freq)
+                        # Stores the frequencies (indices of pitches match time_stamps)
+                        pitches = []
 
-                    # Range of frequencies that we are searching for
-                    if freq > flag_freq - offset and freq < flag_freq + offset:
-                        # print(self.time_stamps[t]   , t)
-
-                        # To make sure the timestamps are continues
-                        if self.time_stamps[t] - self.time_stamps[prev_t] <= max_gap_time*self.quotient:
-                            candidate.append(t)
-                        else:
-                            if len(candidate) and self.time_stamps[candidate[-1]] - self.time_stamps[candidate[0]] > min_flag_candidate_req*self.quotient:
-                                slice_t.append(candidate)
-                            candidate = []
-                        prev_t = t
-
-                    if self.time_stamps[t] - self.time_stamps[prev_t] > max_gap_time*self.quotient and len(candidate) and self.time_stamps[candidate[-1]] - self.time_stamps[candidate[0]] > min_flag_candidate_req*self.quotient:
-                        slice_t.append(candidate)
+                        # Stores all the beep candidates
+                        slice_t = []
                         candidate = []
-                        
-                # Stores the smallest mean difference (most likely candidate)
-                curr_mean_diff = 10000
+                        prev_t = 0
+                        print('looking for candidates...')
+                        for t in range(len(self.time_stamps)):
+                            freq = int(self.get_freq(freqs, magnitudes, t))
+                            pitches.append(freq)
+                            #if freq > flag_freq - offset: #and freq < flag_freq + offset:
+                            #    print(self.time_stamps[t]/self.quotient, freq)
+
+                            # Range of frequencies that we are searching for
+                            if freq > flag_freq - offset and freq < flag_freq + offset:
+                                # print(self.time_stamps[t]   , t)
+
+                                # To make sure the timestamps are continues
+                                if self.time_stamps[t] - self.time_stamps[prev_t] <= max_gap_time*self.quotient:
+                                    candidate.append(t)
+                                else:
+                                    if len(candidate) and self.time_stamps[candidate[-1]] - self.time_stamps[candidate[0]] > min_flag_candidate_req*self.quotient:
+                                        slice_t.append(candidate)
+                                    candidate = []
+                                prev_t = t
+
+                            if self.time_stamps[t] - self.time_stamps[prev_t] > max_gap_time*self.quotient and len(candidate) and self.time_stamps[candidate[-1]] - self.time_stamps[candidate[0]] > min_flag_candidate_req*self.quotient:
+                                slice_t.append(candidate)
+                                candidate = []
+
+                        round += 1
 
                 # If there is no flag tone in the audio 
                 if slice_t == []:
@@ -164,6 +173,9 @@ class AudioFlagFinder:
         end_sample = int(end_time * sample_rate)
 
         # Extract the portion of the audio
-        audio_portion = input_samples[start_sample:end_sample]
+        try:
+            audio_portion = input_samples[start_sample:end_sample]
+        except:
+            audio_portion = input_samples[start_sample:]
 
         return audio_portion
