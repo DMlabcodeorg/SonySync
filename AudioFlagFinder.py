@@ -60,7 +60,7 @@ class AudioFlagFinder:
                 if time_cut:
                     slice_t = []
                     round = 0
-                    while slice_t == [] and (round + 1) * time_cut * sample_rate < len(samples) :
+                    while slice_t == [] and (round + 1) * time_cut * sample_rate < len(samples_all) :
 
                         print('\nProcess minutes {} to {}'.format(round * time_cut, (round + 1) * time_cut))
 
