@@ -55,16 +55,18 @@ class AudioFlagFinder:
                 curr_mean_diff = 10000
                 
                 # samples raw data, and rate is the number of time the points are measured
-                samples_all, sample_rate = librosa.load(audio_path, sr=None)
+                # samples, sample_rate = librosa.load(audio_path, sr=None)
 
                 if time_cut:
                     slice_t = []
                     round = 0
-                    while slice_t == [] and (round + 1) * time_cut * sample_rate < len(samples_all) :
+                    samples, sample_rate = librosa.load(audio_path, sr=None)
+                    sample_all_len = len(samples)
+                    while slice_t == [] and (round + 1) * time_cut * sample_rate < sample_all_len:
 
                         print('\nProcess minutes {} to {}'.format(int(round * time_cut / 60), int((round + 1) * time_cut / 60)))
 
-                        samples = self.cut_audio_by_time(samples_all, sample_rate, round * time_cut, (round + 1) * time_cut)
+                        samples = librosa.load(audio_path, sr=None, offset=round * time_cut, duration=time_cut)
                 
                         # Window size of fft measurement
                         self.quotient = float(2048/self.n_fft)
@@ -115,7 +117,7 @@ class AudioFlagFinder:
                 else:
                     print('\nProcess the whole audio')
 
-                    samples = samples_all
+                    samples, sample_rate = librosa.load(audio_path, sr=None)
 
                     # Window size of fft measurement
                     self.quotient = float(2048 / self.n_fft)
@@ -220,16 +222,3 @@ class AudioFlagFinder:
         diff_arr = np.diff(np.array([self.time_stamps[t]/self.quotient for t in slice]))
         # return sum(slice[i+1] - slice[i] for i in range(len(slice)-1)) / (len(slice)-1)
         return np.mean(diff_arr), diff_arr.max()
-    
-    def cut_audio_by_time(self, input_samples, sample_rate, start_time, end_time):
-        # Calculate the start and end samples
-        start_sample = int(start_time * sample_rate)
-        end_sample = int(end_time * sample_rate)
-
-        # Extract the portion of the audio
-        try:
-            audio_portion = input_samples[start_sample:end_sample]
-        except:
-            audio_portion = input_samples[start_sample:]
-
-        return audio_portion
