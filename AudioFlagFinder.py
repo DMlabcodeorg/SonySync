@@ -63,7 +63,7 @@ class AudioFlagFinder:
                     samples, sample_rate = librosa.load(audio_path, sr=None)
                     first_flag = True
                     sample_all_len = len(samples)
-                    while slice_t == [] and (round + 1) * time_cut * sample_rate < sample_all_len:
+                    while slice_t == [] and round * time_cut * sample_rate < sample_all_len:
 
                         print('\nProcess minutes {} to {}'.format(int(round * time_cut / 60), int((round + 1) * time_cut / 60)))
 
@@ -71,7 +71,10 @@ class AudioFlagFinder:
                             samples = self.cut_audio_by_time(samples, sample_rate, 0, time_cut)
                             first_flag = False
                         else:
-                            samples, _ = librosa.load(audio_path, sr=None, offset=round * time_cut, duration=time_cut)
+                            if (round + 1) * time_cut * sample_rate < sample_all_len:
+                                samples, _ = librosa.load(audio_path, sr=None, offset=round * time_cut, duration=time_cut)
+                            else:
+                                samples, _ = librosa.load(audio_path, sr=None, offset=round * time_cut)
                 
                         # Window size of fft measurement
                         self.quotient = float(2048/self.n_fft)
