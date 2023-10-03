@@ -55,7 +55,7 @@ class AudioFlagFinder:
                 curr_mean_diff = 10000
                 
                 # samples raw data, and rate is the number of time the points are measured
-                samples, sample_rate = librosa.load(audio_path, sr=None)
+                samples_all, sample_rate = librosa.load(audio_path, sr=None)
 
                 if time_cut:
                     slice_t = []
@@ -64,7 +64,7 @@ class AudioFlagFinder:
 
                         print('\nProcess minutes {} to {}'.format(round * time_cut, (round + 1) * time_cut))
 
-                        samples = self.cut_audio_by_time(samples, sample_rate, round * time_cut, (round + 1) * time_cut)
+                        samples = self.cut_audio_by_time(samples_all, sample_rate, round * time_cut, (round + 1) * time_cut)
                 
                         # Window size of fft measurement
                         self.quotient = float(2048/self.n_fft)
