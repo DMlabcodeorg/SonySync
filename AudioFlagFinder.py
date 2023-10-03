@@ -62,7 +62,7 @@ class AudioFlagFinder:
                     round = 0
                     while slice_t == [] and (round + 1) * time_cut * sample_rate < len(samples_all) :
 
-                        print('\nProcess seconds {} to {}'.format(round * time_cut, (round + 1) * time_cut))
+                        print('\nProcess minutes {} to {}'.format(int(round * time_cut / 60), int((round + 1) * time_cut / 60)))
 
                         samples = self.cut_audio_by_time(samples_all, sample_rate, round * time_cut, (round + 1) * time_cut)
                 
