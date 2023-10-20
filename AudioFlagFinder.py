@@ -32,6 +32,7 @@ class AudioFlagFinder:
             # path_to_folder = os.path.dirname(os.path.realpath(sys.argv[0])).replace("\\","/")
 
             self.file_str_array = os.listdir(folder_dir)
+            self.file_str_array = [n for n in self.file_str_array if n.split('.')[-1] == 'wav']
             
             try:
                 beep_df = pd.read_csv(self.output_directory + '.csv', header=0, index_col=0)
