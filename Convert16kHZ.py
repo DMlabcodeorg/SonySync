@@ -11,7 +11,7 @@ def convert_wav_files_to_16khz(original_path):
         return
 
     # Create new directory to save the converted files
-    new_path = os.path.join(original_path, "add_16kHZ")
+    new_path = os.path.join(original_path, "_16kHZ")
     if not os.path.exists(new_path):
         os.makedirs(new_path)
 
@@ -40,7 +40,7 @@ def convert_wav_files_to_16khz(original_path):
 def main():
     # Check if the path is provided
     if len(sys.argv) < 2:
-        print("Usage: python script.py <path_to_scan_and_convert_to_16kHZ>")
+        print("Usage: python Convert16kHZ.py <path_to_scan_and_convert_to_16kHZ>")
         sys.exit(1)
 
     path_to_scan = sys.argv[1]
