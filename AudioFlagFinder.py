@@ -32,6 +32,7 @@ class AudioFlagFinder:
             # path_to_folder = os.path.dirname(os.path.realpath(sys.argv[0])).replace("\\","/")
 
             self.file_str_array = os.listdir(folder_dir)
+            self.file_str_array = [n for n in self.file_str_array if n.split('.')[-1] == 'wav']
             
             try:
                 beep_df = pd.read_csv(self.output_directory + '.csv', header=0, index_col=0)
@@ -43,64 +44,143 @@ class AudioFlagFinder:
                 
             print('List of audios found in: \n\t' + folder_dir +'\n audios ---> ', self.file_str_array)
 
+            print('\nWe test with flag frequency {} Hz and time cut {} seconds\n'.format(flag_freq, time_cut))
+
             for file_name in self.file_str_array:
-                print('\n\nCurrently on: ', file_name)
+                print('\n\nCurrently on: {}'.format(file_name))
 
                 # Load the WAV file         
                 audio_path = folder_dir + '/' + file_name
-                
-                # samples raw data, and rate is the number of time the points are measured
-                samples, sample_rate = librosa.load(audio_path, sr=None)
-                if time_cut:
-                    samples = self.cut_audio_by_time(samples, sample_rate, 0, time_cut)            
-                
-                # Window size of fft measurement
-                self.quotient = float(2048/self.n_fft)
 
-                # Compute the Short-Time Fourier Transform (STFT)
-                stft = librosa.stft(samples, n_fft=self.n_fft)
-                
-                # Convert the STFT time stamps
-                self.time_stamps = librosa.core.frames_to_time(range(stft.shape[1]), sr=sample_rate)
-                # time_stamps = time_stamps
-
-                # Computes the frequencies and magnitudes
-                freqs, magnitudes = librosa.core.piptrack(y=samples, sr=sample_rate, S=None, n_fft=self.n_fft, hop_length=None, fmin=150.0,
-                                                        fmax=20000.0, threshold=0.1, win_length=None, window='hann', center=True, pad_mode='reflect', ref=None)
-
-                # Stores the frequencies (indices of pitches match time_stamps)
-                pitches = []
-
-                # Stores all the beep candidates
-                slice_t = []
-                candidate = []
-                prev_t = 0
-                print('looking for candidates...')
-                for t in range(len(self.time_stamps)):
-                    freq = int(self.get_freq(freqs, magnitudes, t))
-                    pitches.append(freq)
-                    #if freq > flag_freq - offset: #and freq < flag_freq + offset:
-                    #    print(self.time_stamps[t]/self.quotient, freq)
-
-                    # Range of frequencies that we are searching for
-                    if freq > flag_freq - offset and freq < flag_freq + offset:
-                        # print(self.time_stamps[t]   , t)
-
-                        # To make sure the timestamps are continues
-                        if self.time_stamps[t] - self.time_stamps[prev_t] <= max_gap_time*self.quotient:
-                            candidate.append(t)
-                        else:
-                            if len(candidate) and self.time_stamps[candidate[-1]] - self.time_stamps[candidate[0]] > min_flag_candidate_req*self.quotient:
-                                slice_t.append(candidate)
-                            candidate = []
-                        prev_t = t
-
-                    if self.time_stamps[t] - self.time_stamps[prev_t] > max_gap_time*self.quotient and len(candidate) and self.time_stamps[candidate[-1]] - self.time_stamps[candidate[0]] > min_flag_candidate_req*self.quotient:
-                        slice_t.append(candidate)
-                        candidate = []
-                        
                 # Stores the smallest mean difference (most likely candidate)
                 curr_mean_diff = 10000
+                
+                # samples raw data, and rate is the number of time the points are measured
+                # samples, sample_rate = librosa.load(audio_path, sr=None)
+
+                if time_cut:
+                    slice_t = []
+                    round = 0
+                    samples, sample_rate = librosa.load(audio_path, sr=None)
+                    first_flag = True
+                    sample_all_len = len(samples)
+                    while slice_t == [] and round * time_cut * sample_rate < sample_all_len:
+
+                        if (round + 1) * time_cut * sample_rate < sample_all_len:
+                            print('\nProcess minutes {} to {}'.format(int(round * time_cut / 60), int((round + 1) * time_cut / 60)))
+                        else:
+                            print('\nProcess minutes {} to {}'.format(int(round * time_cut / 60),
+                                                                      int((sample_all_len / sample_rate) / 60)))
+
+                        if first_flag:
+                            samples = self.cut_audio_by_time(samples, sample_rate, 0, time_cut)
+                            first_flag = False
+                        else:
+                            if (round + 1) * time_cut * sample_rate < sample_all_len:
+                                samples, _ = librosa.load(audio_path, sr=None, offset=round * time_cut, duration=time_cut)
+                            else:
+                                samples, _ = librosa.load(audio_path, sr=None, offset=round * time_cut)
+                
+                        # Window size of fft measurement
+                        self.quotient = float(2048/self.n_fft)
+
+                        # Compute the Short-Time Fourier Transform (STFT)
+                        stft = librosa.stft(samples, n_fft=self.n_fft)
+
+                        # Convert the STFT time stamps
+                        self.time_stamps = librosa.core.frames_to_time(range(stft.shape[1]), sr=sample_rate)
+                        # time_stamps = time_stamps
+
+                        # Computes the frequencies and magnitudes
+                        freqs, magnitudes = librosa.core.piptrack(y=samples, sr=sample_rate, S=None, n_fft=self.n_fft, hop_length=None, fmin=150.0,
+                                                                fmax=20000.0, threshold=0.1, win_length=None, window='hann', center=True, pad_mode='reflect', ref=None)
+
+                        # Stores the frequencies (indices of pitches match time_stamps)
+                        pitches = []
+
+                        # Stores all the beep candidates
+                        slice_t = []
+                        candidate = []
+                        prev_t = 0
+                        print('looking for candidates...')
+                        for t in range(len(self.time_stamps)):
+                            freq = int(self.get_freq(freqs, magnitudes, t))
+                            pitches.append(freq)
+                            #if freq > flag_freq - offset: #and freq < flag_freq + offset:
+                            #    print(self.time_stamps[t]/self.quotient, freq)
+
+                            # Range of frequencies that we are searching for
+                            if freq > flag_freq - offset and freq < flag_freq + offset:
+                                # print(self.time_stamps[t]   , t)
+
+                                # To make sure the timestamps are continues
+                                if self.time_stamps[t] - self.time_stamps[prev_t] <= max_gap_time*self.quotient:
+                                    candidate.append(t)
+                                else:
+                                    if len(candidate) and self.time_stamps[candidate[-1]] - self.time_stamps[candidate[0]] > min_flag_candidate_req*self.quotient:
+                                        slice_t.append(candidate)
+                                    candidate = []
+                                prev_t = t
+
+                            if self.time_stamps[t] - self.time_stamps[prev_t] > max_gap_time*self.quotient and len(candidate) and self.time_stamps[candidate[-1]] - self.time_stamps[candidate[0]] > min_flag_candidate_req*self.quotient:
+                                slice_t.append(candidate)
+                                candidate = []
+
+                        round += 1
+                else:
+                    print('\nProcess the whole audio')
+
+                    samples, sample_rate = librosa.load(audio_path, sr=None)
+
+                    # Window size of fft measurement
+                    self.quotient = float(2048 / self.n_fft)
+
+                    # Compute the Short-Time Fourier Transform (STFT)
+                    stft = librosa.stft(samples, n_fft=self.n_fft)
+
+                    # Convert the STFT time stamps
+                    self.time_stamps = librosa.core.frames_to_time(range(stft.shape[1]), sr=sample_rate)
+                    # time_stamps = time_stamps
+
+                    # Computes the frequencies and magnitudes
+                    freqs, magnitudes = librosa.core.piptrack(y=samples, sr=sample_rate, S=None, n_fft=self.n_fft,
+                                                              hop_length=None, fmin=150.0,
+                                                              fmax=20000.0, threshold=0.1, win_length=None,
+                                                              window='hann', center=True, pad_mode='reflect', ref=None)
+
+                    # Stores the frequencies (indices of pitches match time_stamps)
+                    pitches = []
+
+                    # Stores all the beep candidates
+                    slice_t = []
+                    candidate = []
+                    prev_t = 0
+                    print('looking for candidates...')
+                    for t in range(len(self.time_stamps)):
+                        freq = int(self.get_freq(freqs, magnitudes, t))
+                        pitches.append(freq)
+                        # if freq > flag_freq - offset: #and freq < flag_freq + offset:
+                        #    print(self.time_stamps[t]/self.quotient, freq)
+
+                        # Range of frequencies that we are searching for
+                        if freq > flag_freq - offset and freq < flag_freq + offset:
+                            # print(self.time_stamps[t]   , t)
+
+                            # To make sure the timestamps are continues
+                            if self.time_stamps[t] - self.time_stamps[prev_t] <= max_gap_time * self.quotient:
+                                candidate.append(t)
+                            else:
+                                if len(candidate) and self.time_stamps[candidate[-1]] - self.time_stamps[
+                                    candidate[0]] > min_flag_candidate_req * self.quotient:
+                                    slice_t.append(candidate)
+                                candidate = []
+                            prev_t = t
+
+                        if self.time_stamps[t] - self.time_stamps[prev_t] > max_gap_time * self.quotient and len(
+                                candidate) and self.time_stamps[candidate[-1]] - self.time_stamps[
+                            candidate[0]] > min_flag_candidate_req * self.quotient:
+                            slice_t.append(candidate)
+                            candidate = []
 
                 # If there is no flag tone in the audio 
                 if slice_t == []:
@@ -155,13 +235,16 @@ class AudioFlagFinder:
         diff_arr = np.diff(np.array([self.time_stamps[t]/self.quotient for t in slice]))
         # return sum(slice[i+1] - slice[i] for i in range(len(slice)-1)) / (len(slice)-1)
         return np.mean(diff_arr), diff_arr.max()
-    
+
     def cut_audio_by_time(self, input_samples, sample_rate, start_time, end_time):
         # Calculate the start and end samples
         start_sample = int(start_time * sample_rate)
         end_sample = int(end_time * sample_rate)
 
         # Extract the portion of the audio
-        audio_portion = input_samples[start_sample:end_sample]
+        try:
+            audio_portion = input_samples[start_sample:end_sample]
+        except:
+            audio_portion = input_samples[start_sample:]
 
         return audio_portion
